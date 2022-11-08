@@ -4,6 +4,8 @@
 <head>
     <title>Real Time Polling App using Socket.io</title>
 </head>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.2/dist/darkly/bootstrap.min.css">
 
 <body>
 
@@ -15,43 +17,62 @@
     <!-- The title -->
     <h1 style="text-align: center;">Mayhem Maps</h1>
     <h1 style="text-align: center;">scroll to bottom for maplist. yes its ugly</h1>
-    <h1 style="text-align: center;">click the map mod button, search works. (5 second cooldown on votes)</h1>
+    <h1 style="text-align: center;">click the map mod button, search works.</h1>
+    <h1 style="text-align: center;">2 second vote cooldown</h1>
     <h2 style="text-align: center;">highlight over or click the bar and it will show the map name</h1>
         <div class="masterChartDiv">
             <section>
-                <div>
+                <div id="voteDiv">
                     <h1 style="text-align: center;">total votes</h1>
                     <canvas id="voteChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+                <button id="strongToggleButton" onclick="hideStrongChart()">Show Strong</button>
+                <button id="harbToggleButton" onclick="hideHarbChart()">Show Harb</button>
+                <button id="rogueToggleButton" onclick="hideRogueChart()">Show Rogue</button>
+                <button id="invasionToggleButton" onclick="hideInvasionChart()">Show Invasion</button>
+                <button id="breachToggleButton" onclick="hideBreachChart()">Show Breach</button>
+                <button id="spiritToggleButton" onclick="hideSpiritChart()">Show Spirit</button>
+                <button id="deliToggleButton" onclick="hideDeliChart()">Show Deli</button>
+                <button id="beyondToggleButton" onclick="hideBeyondChart()">Show Beyond</button>
+
+                <div id="harbDiv" style="display: none;">
                     <h1 style="text-align: center;">Harb</h1>
                     <canvas id="harbChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+
+                <div id="rogueDiv" style="display: none;">
                     <h1 style="text-align: center;">Rogue</h1>
                     <canvas id="rogueChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+
+                <div id="strongDiv" style="display: none;">
                     <h1 style="text-align: center;">Strong</h1>
                     <canvas id="strongChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+
+
+                <div id="invasionDiv" style="display: none;">
                     <h1 style="text-align: center;">Invasion</h1>
                     <canvas id="invasionChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+
+
+                <div id="breachDiv" style="display: none;">
                     <h1 style="text-align: center;">Breach</h1>
                     <canvas id="breachChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+
+                <div id="spiritDiv" style="display: none;">
                     <h1 style="text-align: center;">Spirit</h1>
                     <canvas id="spiritChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+
+                <div id="deliDiv" style="display: none;">
                     <h1 style="text-align: center;">Deli</h1>
                     <canvas id="deliChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
-                <div>
+
+                <div id="beyondDiv" style="display: none;">
                     <h1 style="text-align: center;">Beyond</h1>
                     <canvas id="beyondChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
                 </div>
@@ -65,9 +86,12 @@
 
 
 
+        <!-- Option 1: Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
         <script>
             // Connect to the server it's (Here you want to change the port if you changed it in the server)
+
             const PORT = 3000;
             const socket = io("http://localhost:3000", {
                 transports: ['websocket'],
@@ -1598,6 +1622,7 @@
                         if (mapMods.includes(key)) {
                             let cell = row.insertCell();
                             let btn = document.createElement("button");
+                            btn.classList.add(['btn', 'btn-primary'])
                             btn.innerHTML = key
                                 //neat
                                 // Object.keys(element).indexOf(key);
@@ -1623,6 +1648,90 @@
             let data2 = Object.keys(maps[0]);
             generateTableHead(table2, data2);
             generateTable(table2, maps);
+
+            function hideHarbChart() {
+                var x = document.getElementById("harbDiv");
+                var y = document.getElementById("harbToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Harb"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Harb"
+                }
+            }
+
+            function hideRogueChart() {
+                var x = document.getElementById("rogueDiv");
+                var y = document.getElementById("rogueToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide rogue"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show rogue"
+                }
+            }
+
+            function hideStrongChart() {
+                var x = document.getElementById("strongDiv");
+                var y = document.getElementById("strongToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Strongbox"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Strongbox"
+                }
+            }
+
+            function hideDeliChart() {
+                var x = document.getElementById("deliDiv");
+                var y = document.getElementById("deliToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Deli"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Deli"
+                }
+            }
+
+            function hideBreachChart() {
+                var x = document.getElementById("breachDiv");
+                var y = document.getElementById("strongToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Breach"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Breach"
+                }
+            }
+
+            function hideSpiritChart() {
+                var x = document.getElementById("spiritDiv");
+                var y = document.getElementById("spiritToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Spirit"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Spirit"
+                }
+            }
+
+            function hideBeyondChart() {
+                var x = document.getElementById("beyondDiv");
+                var y = document.getElementById("beyondToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Beyond"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Beyond"
+                }
+            }
         </script>
 </body>
 

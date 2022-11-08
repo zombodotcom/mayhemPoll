@@ -264,7 +264,7 @@ let maps = [
 const users = {}
 
 // Cool down in milliseconds
-const coolDown = 5000
+const coolDown = 2000
 
 // The magic number
 const magicNumber = 25381238823847823427345
@@ -359,7 +359,7 @@ function copy(x) {
     return JSON.parse(JSON.stringify(x));
 }
 
-cron.schedule('*/10 * * * * *', () => {
+cron.schedule('0 * * * *', () => {
     console.log('running a task every 1 hour');
     io.emit("mapUpdate", originalMaps);
     maps = copy(originalMaps)
