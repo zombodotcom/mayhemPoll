@@ -264,7 +264,7 @@ let maps = [
 const users = {}
 
 // Cool down in milliseconds
-const coolDown = 500
+const coolDown = 5000
 
 // The magic number
 const magicNumber = 25381238823847823427345
