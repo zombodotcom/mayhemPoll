@@ -19,7 +19,7 @@ const server = app.listen(PORT, err => {
 
 const io = require("socket.io")(server, {
     cors: {
-        origin: `https://mayhempoll.herokuapp.com/`, // I copied the origin in the error message and pasted here
+        origin: '*', // I copied the origin in the error message and pasted here
         methods: ["GET", "POST"],
         credentials: true
     }
