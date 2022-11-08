@@ -17,7 +17,13 @@ const server = app.listen(PORT, err => {
     console.log("%c Server running", "color: green");
 });
 
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+    cors: {
+        origin: `https://mayhempoll.herokuapp.com/`, // I copied the origin in the error message and pasted here
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 
 const mapNames = ["Strand", "Overgrown Ruin", "Terrace", "Frozen Cabins", "Moon Temple", "Crimson Temple", "Carcass", "Dark Forest", "Colosseum", "Bramble Valley", "Excavation", "Thicket", "Bone Crypt", "Museum", "Waterways", "Factory", "Cells", "Caldera", "Park", "Defiled Cathedral", "Atoll", "Shore", "Vaal Pyramid", "Phantasmagoria", "Primordial Pool", "Laboratory", "Dungeon", "Chateau", "Temple", "Crater", "Crimson Township", "Wharf", "Coral Ruins", "Mud Geyser", "Acid Caverns", "Shrine", "Overgrown Shrine", "Lava Chamber", "Jungle Valley", "Arachnid Tomb", "Plateau", "Dry Sea", "Spider Forest", "Necropolis", "Colonnade", "Arachnid Nest", "Lair", "Mausoleum", "Summit", "Fungal Hollow", "Wasteland", "Bog", "Ancient City", "Ghetto", "Maze", "Barrows", "Canyon", "Villa", "Residence", "Foundry", "Pier", "Dig", "Desert", "Underground River", "Cold River", "Stagnation", "Racecourse", "Gardens", "Leyline", "Alleyways", "Peninsula", "Arena", "Castle Ruins", "Belfry", "Precinct", "Cemetery", "Cursed Crypt", "Marshes", "Promenade", "Port", "Silo", "Arsenal", "Lava Lake", "Orchard", "Pen", "Sulphur Vents", "Underground Sea", "Plaza", "Mesa", "Armoury", "Ashen Wood", "Dunes", "Forking River", "Vault", "Grotto", "Arcade", "Waste Pool", "Grave Trough", "Ramparts", "Arid Lake"]
 const mapMods = ["rogue", "strong", "invasion", "breach", "spirit", "harb", "deli", "beyond"]
