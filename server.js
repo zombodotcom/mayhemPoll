@@ -359,7 +359,7 @@ function copy(x) {
     return JSON.parse(JSON.stringify(x));
 }
 
-cron.schedule('* 1-4 * * *', () => {
+cron.schedule('*/10 * * * * *', () => {
     console.log('running a task every 10 seconds');
     io.emit("mapUpdate", originalMaps);
     maps = copy(originalMaps)
