@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Real Time Polling App using Socket.io</title>
+</head>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.2/dist/darkly/bootstrap.min.css">
+
+<body>
+
+    <!-- Import dependencies -->
+    <!-- https://cdnjs.com/libraries/socket.io -->
+    <!-- https://cdnjs.com/libraries/Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.js" integrity="sha512-iWPnCISAd/J+ZacwV2mbNLCaPGRrRo5OS81lKTVPtRg1wGTC20Cfmp5Us5RcbLv42QLdbAWl0MI57yox5VecQg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- The title -->
+    <h1 style="text-align: center;">Mayhem Maps</h1>
+    <h1 style="text-align: center;">scroll to bottom for maplist. yes its ugly</h1>
+    <h1 style="text-align: center;">click the map mod button, search works.</h1>
+    <h1 style="text-align: center;">2 second vote cooldown</h1>
+    <h2 style="text-align: center;">highlight over or click the bar and it will show the map name</h1>
+        <div class="masterChartDiv">
+            <section>
+                <div id="voteDiv">
+                    <h1 style="text-align: center;">total votes</h1>
+                    <canvas id="voteChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+                <button id="strongToggleButton" onclick="hideStrongChart()">Show Strong</button>
+                <button id="harbToggleButton" onclick="hideHarbChart()">Show Harb</button>
+                <button id="rogueToggleButton" onclick="hideRogueChart()">Show Rogue</button>
+                <button id="invasionToggleButton" onclick="hideInvasionChart()">Show Invasion</button>
+                <button id="breachToggleButton" onclick="hideBreachChart()">Show Breach</button>
+                <button id="spiritToggleButton" onclick="hideSpiritChart()">Show Spirit</button>
+                <button id="deliToggleButton" onclick="hideDeliChart()">Show Deli</button>
+                <button id="beyondToggleButton" onclick="hideBeyondChart()">Show Beyond</button>
+
+                <div id="harbDiv" style="display: none;">
+                    <h1 style="text-align: center;">Harb</h1>
+                    <canvas id="harbChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+                <div id="rogueDiv" style="display: none;">
+                    <h1 style="text-align: center;">Rogue</h1>
+                    <canvas id="rogueChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+
+                <div id="strongDiv" style="display: none;">
+                    <h1 style="text-align: center;">Strong</h1>
+                    <canvas id="strongChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+
+
+                <div id="invasionDiv" style="display: none;">
+                    <h1 style="text-align: center;">Invasion</h1>
+                    <canvas id="invasionChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+
+
+                <div id="breachDiv" style="display: none;">
+                    <h1 style="text-align: center;">Breach</h1>
+                    <canvas id="breachChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+
+                <div id="spiritDiv" style="display: none;">
+                    <h1 style="text-align: center;">Spirit</h1>
+                    <canvas id="spiritChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+
+                <div id="deliDiv" style="display: none;">
+                    <h1 style="text-align: center;">Deli</h1>
+                    <canvas id="deliChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+
+                <div id="beyondDiv" style="display: none;">
+                    <h1 style="text-align: center;">Beyond</h1>
+                    <canvas id="beyondChart" style="position: relative; height:40vh; width:80vw; border: 1px solid black;"></canvas>
+                </div>
+            </section>
+        </div>
+        <h2>Map Search</h2>
+        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+        <table id="myTable" style=" border: 1px solid black;">
+            <!-- here goes our data! -->
+        </table>
+
+
+
+        <!-- Option 1: Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+        <script>
+            // Connect to the server it's (Here you want to change the port if you changed it in the server)
+
+            const PORT = 3000;
+            const socket = io("http://localhost:3000", {
+                transports: ['websocket'],
+                cors: {
+                    origin: '*', // I copied the origin in the error message and pasted here
+                    methods: ["GET", "POST"],
+                    credentials: true
+                }
+            })
+            const maps = [{
+                votes: 0,
+                label: "Strand",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Overgrown Ruin",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Terrace",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Frozen Cabins",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Moon Temple",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Crimson Temple",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Carcass",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Dark Forest",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Colosseum",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Bramble Valley",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Excavation",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Thicket",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Bone Crypt",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Museum",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Waterways",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Factory",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Cells",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Caldera",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Park",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Defiled Cathedral",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Atoll",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Shore",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Vaal Pyramid",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Phantasmagoria",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Primordial Pool",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Laboratory",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Dungeon",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Chateau",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Temple",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Crater",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Crimson Township",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Wharf",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Coral Ruins",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Mud Geyser",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Acid Caverns",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Shrine",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Overgrown Shrine",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Lava Chamber",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Jungle Valley",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Arachnid Tomb",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Plateau",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Dry Sea",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Spider Forest",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Necropolis",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Colonnade",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Arachnid Nest",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Lair",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Mausoleum",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Summit",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Fungal Hollow",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Wasteland",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Bog",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Ancient City",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Ghetto",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Maze",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Barrows",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Canyon",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Villa",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Residence",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Foundry",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Pier",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Dig",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Desert",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Underground River",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Cold River",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Stagnation",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Racecourse",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Gardens",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Leyline",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Alleyways",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Peninsula",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Arena",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Castle Ruins",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Belfry",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Precinct",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Cemetery",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Cursed Crypt",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Marshes",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Promenade",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Port",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Silo",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Arsenal",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Lava Lake",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Orchard",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Pen",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Sulphur Vents",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Underground Sea",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Plaza",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Mesa",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Armoury",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Ashen Wood",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Dunes",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Forking River",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Vault",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Grotto",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Arcade",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Waste Pool",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Grave Trough",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Ramparts",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, {
+                votes: 0,
+                label: "Arid Lake",
+                rogue: 0,
+                strong: 0,
+                invasion: 0,
+                breach: 0,
+                spirit: 0,
+                harb: 0,
+                deli: 0,
+                beyond: 0
+            }, ]
+
+            const mapMods = ["rogue", "strong", "invasion", "breach", "spirit", "harb", "deli", "beyond"]
+
+            let ok = [
+                "Strand",
+            ]
+
+            function randomRGB() {
+                const r = () => Math.random() * 256 >> 0;
+                return `rgb(${r()}, ${r()}, ${r()})`;
+            }
+
+
+            // Initialize the canvas
+            const ctx = document.getElementById("voteChart").getContext("2d");
+
+
+            // Initialize the chart
+            const chart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: ["Votes This Hour"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                    }
+                }
+            });
+
+            const harbCtx = document.getElementById("harbChart").getContext("2d");
+            // Initialize the chart
+            const harbChart = new Chart(harbCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Harbingers"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Harbingers'
+                        }
+                    }
+                }
+            });
+            const rogueCtx = document.getElementById("rogueChart").getContext("2d");
+            // Initialize the chart
+            const rogueChart = new Chart(rogueCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Rogue"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Rogue'
+                        }
+                    }
+                }
+            });
+            const strongCtx = document.getElementById("strongChart").getContext("2d");
+            // Initialize the chart
+            const strongChart = new Chart(strongCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Strongboxes"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Strongboxes'
+                        }
+                    }
+                }
+            });
+            const invasionCtx = document.getElementById("invasionChart").getContext("2d");
+            // Initialize the chart
+            const invasionChart = new Chart(invasionCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Invasion"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Invasion'
+                        }
+                    }
+                }
+            });
+
+            const breachCtx = document.getElementById("breachChart").getContext("2d");
+            // Initialize the chart
+            const breachChart = new Chart(breachCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Breach"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Breach'
+                        }
+                    }
+                }
+            });
+            const spiritCtx = document.getElementById("spiritChart").getContext("2d");
+            // Initialize the chart
+            const spiritChart = new Chart(spiritCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Tormented Spirits"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tormented Spirits'
+                        }
+                    }
+                }
+            });
+            const deliCtx = document.getElementById("deliChart").getContext("2d");
+            // Initialize the chart
+            const deliChart = new Chart(deliCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Deli"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Deli'
+                        }
+                    }
+                }
+            });
+            const beyondCtx = document.getElementById("beyondChart").getContext("2d");
+            // Initialize the chart
+            const beyondChart = new Chart(beyondCtx, {
+                type: "bar",
+                data: {
+                    labels: ["Beyond"],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Beyond'
+                        }
+                    }
+                }
+            });
+
+
+
+            // On new vote update the chart
+            socket.on("mapUpdate", (updatedMaps) => {
+
+                // Convert the candidates object into an array
+                updatedMaps = Object.entries(updatedMaps);
+
+                // For each candidate
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof chart.data.datasets[key] == "undefined" && chart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        chart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.votes],
+                            label: map.label
+                        });
+                    } else if (typeof chart.data.datasets[key] != "undefined") {
+                        chart.data.datasets[key].data = [map.votes];
+                    }
+
+                }
+                chart.update();
+
+                // For each Harb Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof harbChart.data.datasets[key] == "undefined" && harbChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        harbChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.harb],
+                            label: map.label
+                        });
+                    } else if (typeof harbChart.data.datasets[key] != "undefined") {
+                        harbChart.data.datasets[key].data = [map.harb];
+                    }
+
+                }
+                harbChart.update();
+
+
+                // For each Rogue Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof rogueChart.data.datasets[key] == "undefined" && rogueChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        rogueChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.rogue],
+                            label: map.label
+                        });
+                    } else if (typeof rogueChart.data.datasets[key] != "undefined") {
+                        rogueChart.data.datasets[key].data = [map.rogue];
+                    }
+
+                }
+                rogueChart.update();
+
+
+                // For each Strongbox Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof strongChart.data.datasets[key] == "undefined" && strongChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        strongChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.strong],
+                            label: map.label
+                        });
+                    } else if (typeof strongChart.data.datasets[key] != "undefined") {
+                        strongChart.data.datasets[key].data = [map.strong];
+                    }
+
+                }
+                strongChart.update();
+
+
+                // For each Breach Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof breachChart.data.datasets[key] == "undefined" && breachChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        breachChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.breach],
+                            label: map.label
+                        });
+                    } else if (typeof harbChart.data.datasets[key] != "undefined") {
+                        breachChart.data.datasets[key].data = [map.breach];
+                    }
+
+                }
+                breachChart.update();
+
+
+                // For each Spirit Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof spiritChart.data.datasets[key] == "undefined" && spiritChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        spiritChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.spirit],
+                            label: map.label
+                        });
+                    } else if (typeof spiritChart.data.datasets[key] != "undefined") {
+                        spiritChart.data.datasets[key].data = [map.spirit];
+                    }
+
+                }
+                spiritChart.update();
+
+
+                // For each Deli Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof deliChart.data.datasets[key] == "undefined" && deliChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        deliChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.deli],
+                            label: map.label
+                        });
+                    } else if (typeof deliChart.data.datasets[key] != "undefined") {
+                        deliChart.data.datasets[key].data = [map.deli];
+                    }
+
+                }
+                deliChart.update();
+
+                // For each Beyond Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof beyondChart.data.datasets[key] == "undefined" && beyondChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        beyondChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.beyond],
+                            label: map.label
+                        });
+                    } else if (typeof beyondChart.data.datasets[key] != "undefined") {
+                        beyondChart.data.datasets[key].data = [map.beyond];
+                    }
+
+                }
+                beyondChart.update();
+                // For each invasion Chart
+                for (const [key, map] of updatedMaps) {
+
+                    // Update the vote if the candidate already exists if not create a new candidate and then update the vote
+                    if (typeof invasionChart.data.datasets[key] == "undefined" && invasionChart.data.datasets.length < updatedMaps.length) {
+                        let randomColor = randomRGB()
+                        invasionChart.data.datasets.push({
+                            backgroundColor: randomColor,
+                            borderColor: randomColor,
+                            data: [map.invasion],
+                            label: "Strand"
+                        });
+                    } else if (typeof invasionChart.data.datasets[key] != "undefined") {
+                        invasionChart.data.datasets[key].data = [map.invasion];
+                        invasionChart.data.datasets[key].label = "Strand";
+                    }
+
+                }
+                invasionChart.update();
+            });
+
+
+
+            function myFunction() {
+                var input, filter, table, tr, td, i, txtValue;
+                input = document.getElementById("myInput");
+                filter = input.value.toUpperCase();
+                table = document.getElementById("myTable");
+                tr = table.getElementsByTagName("tr");
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[1];
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+
+
+
+
+            function buttonClick(index, element, key) {
+                console.log("mapVote", index, element, key)
+                socket.emit("mapVote", index, element, key);
+            };
+
+            function generateTableHead(table, data) {
+                let thead = table.createTHead();
+                let row = thead.insertRow();
+                for (let key of data) {
+                    let th = document.createElement("th");
+                    let text = document.createTextNode(key);
+                    th.appendChild(text);
+                    row.appendChild(th);
+                }
+            }
+
+            function generateTable(table, data) {
+                for (let [index, element] of data.entries()) {
+                    let row = table.insertRow();
+
+                    for (key in element) {
+                        if (mapMods.includes(key)) {
+                            let cell = row.insertCell();
+                            let btn = document.createElement("button");
+                            btn.classList.add(['btn', 'btn-primary'])
+                            btn.innerHTML = key
+                                //neat
+                                // Object.keys(element).indexOf(key);
+
+                            // console.log(index, element, key)
+                            let mapMod = key
+                            btn.onclick = function() {
+                                buttonClick(index, element, mapMod)
+                            }
+                            let text = document.createTextNode(element[key]);
+                            cell.appendChild(btn);
+                        } else {
+                            let cell = row.insertCell();
+                            let text = document.createTextNode(element[key]);
+                            cell.appendChild(text);
+                        }
+
+
+                    }
+                }
+            }
+            let table2 = document.querySelector("table");
+            let data2 = Object.keys(maps[0]);
+            generateTableHead(table2, data2);
+            generateTable(table2, maps);
+
+            function hideHarbChart() {
+                var x = document.getElementById("harbDiv");
+                var y = document.getElementById("harbToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Harb"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Harb"
+                }
+            }
+
+            function hideRogueChart() {
+                var x = document.getElementById("rogueDiv");
+                var y = document.getElementById("rogueToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide rogue"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show rogue"
+                }
+            }
+
+            function hideStrongChart() {
+                var x = document.getElementById("strongDiv");
+                var y = document.getElementById("strongToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Strongbox"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Strongbox"
+                }
+            }
+
+            function hideDeliChart() {
+                var x = document.getElementById("deliDiv");
+                var y = document.getElementById("deliToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Deli"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Deli"
+                }
+            }
+
+            function hideBreachChart() {
+                var x = document.getElementById("breachDiv");
+                var y = document.getElementById("strongToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Breach"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Breach"
+                }
+            }
+
+            function hideSpiritChart() {
+                var x = document.getElementById("spiritDiv");
+                var y = document.getElementById("spiritToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Spirit"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Spirit"
+                }
+            }
+
+            function hideBeyondChart() {
+                var x = document.getElementById("beyondDiv");
+                var y = document.getElementById("beyondToggleButton");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                    y.textContent = "Hide Beyond"
+                } else {
+                    x.style.display = "none";
+                    y.textContent = "Show Beyond"
+                }
+            }
+        </script>
+</body>
+
+</html>
