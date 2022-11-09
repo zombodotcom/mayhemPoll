@@ -264,8 +264,6 @@ let maps = [
 // All of the users
 const users = {}
 
-var users_count = 0;
-
 // Cool down in milliseconds
 const coolDown = 2000
 
@@ -275,11 +273,11 @@ const magicNumber = 25381238823847823427345
 // On new client connection
 io.on("connection", (socket) => {
     socket.emit("mapUpdate", maps);
-    //on connection, update users count
-    ++users_count;
+
     //send it to every opened socket
-    io.sockets.emit('users_count', users_count);
-    console.log(users_count)
+    //send current user count
+    io.sockets.emit('users_count', socket.client.conn.server.clientsCount);
+    console.log(socket.client.conn.server.clientsCount)
 
     // Parse the user agent string
     const userAgent = useragent.parse(socket.handshake.headers["user-agent"]);

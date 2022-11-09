@@ -15,19 +15,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.js" integrity="sha512-iWPnCISAd/J+ZacwV2mbNLCaPGRrRo5OS81lKTVPtRg1wGTC20Cfmp5Us5RcbLv42QLdbAWl0MI57yox5VecQg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <h1 style="text-align: center;">Mayhem Maps</h1>
-    <h3 class="text-muted" style="text-align: center;">2 second vote cooldown. Resets every server hour</h3>
+    <h3 class="text-muted" style="text-align: center;">2 second vote cooldown. Resets every server hour.</h3>
+    <!-- <h5 id="currentUserCount" style="text-align: center;"></h5> -->
     <div class="container text-center">
         <div class="row">
-            <!-- <button id="strongToggleButton" onclick="hideStrongChart()">Show Strong</button>
-                <button id="harbToggleButton" onclick="hideHarbChart()">Show Harb</button>
-                <button id="rogueToggleButton" onclick="hideRogueChart()">Show Rogue</button>
-                <button id="invasionToggleButton" onclick="hideInvasionChart()">Show Invasion</button>
-                <button id="breachToggleButton" onclick="hideBreachChart()">Show Breach</button>
-                <button id="spiritToggleButton" onclick="hideSpiritChart()">Show Spirit</button>
-                <button id="deliToggleButton" onclick="hideDeliChart()">Show Deli</button>
-                <button id="beyondToggleButton" onclick="hideBeyondChart()">Show Beyond</button> -->
-
-
             <div class="col" id="harbDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Harb</h1>
                 <h2 id="harbList" style="text-align: center;"></h2>
@@ -80,8 +71,8 @@
             </div>
         </div>
     </div>
-    <h2>Map Search</h2>
-    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+    <h3 class="text-center">Map Search</h3>
+    <input type="text" id="myInput" class="input-group mb-3 text-center" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
     <div class="table-responsive-sm">
         <table id="myTable" class="table">
             <!-- here goes our data! -->
@@ -1249,15 +1240,14 @@
 
         socket.on("mapUpdate", (updatedMaps) => {
             console.log("updating")
-            users_count++
-            // Convert the candidates object into an array
+                // Convert the candidates object into an array
             updatedMaps = Object.entries(updatedMaps);
             jQuery(function($) {
                 //connect to localhost
                 //handle users_count event, by updating our html
                 socket.on('users_count', function(data) {
-                    $('#client_count').text(data);
-                    console.log(data)
+                    // document.getElementById("currentUserCount").innerHTML = data + " live mappers";
+                    console.log(data + " live mappers")
                 });
                 // let txt = "";
                 // for (let x in maps) {
@@ -1307,7 +1297,7 @@
                 function htmlListMaker(mapList) {
                     var html = "";
                     new Map([...mapList.entries()].sort((a, b) => b[1] - a[1])).forEach((values, keys) => {
-                        console.log(values, keys)
+                        // console.log(values, keys)
                         html += "<li>" + keys + ": " + values + "</li>";
                     })
                     return html
