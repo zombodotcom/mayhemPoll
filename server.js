@@ -35,6 +35,7 @@ function MapMaker(id, name) {
     this.mods = emptyMods
 }
 
+
 function ModMaker() {
     this.rogue = 0
     this.strong = 0
@@ -258,6 +259,14 @@ let maps = [
 
 
 
+
+app.get('/mapIndex/:mapIndex/', (req, res) => {
+    console.log(maps[req.params.messageId]);
+    console.log(maps[req.params.messageId]);
+    return res.send(req.params.messageId);
+});
+
+
 // console.log(maps);
 
 
@@ -383,3 +392,53 @@ function randomRGB() {
 function hash(s) {
     return s.split("").reduce(function(a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0)
 }
+
+//set map mod votes
+app.get('/mapName/:mapName/:mod/:count', (req, res) => {
+    console.log(req.params.mapName)
+    console.log(req.params.mod)
+    console.log(req.params.count)
+
+    maps.find(function(item, i) {
+        if (item.label.toLocaleLowerCase() === req.params.mapName.toLocaleLowerCase()) {
+            console.log(i, item.label)
+            console.log(maps[i])
+            console.log(maps[i][req.params.mod])
+            maps[i][req.params.mod] = parseInt(req.params.count)
+        }
+
+
+    });
+    io.emit("mapUpdate", maps);
+    io.emit("fixMaps")
+    io.emit("mapUpdate", maps);
+    return res.send(req.params.messageId);
+});
+
+//reset a map
+app.get('/mapName/reset/:mapName', (req, res) => {
+    console.log(req.params.mapName)
+    console.log(req.params.mod)
+    console.log(req.params.count)
+
+    maps.find(function(item, i) {
+        if (item.label.toLocaleLowerCase() === req.params.mapName.toLocaleLowerCase()) {
+            console.log(i, item.label)
+            console.log(maps[i])
+            maps[i].votes = 0;
+            maps[i].rogue = 0;
+            maps[i].strong = 0;
+            maps[i].invasion = 0;
+            maps[i].breach = 0;
+            maps[i].spirit = 0;
+            maps[i].harb = 0;
+            maps[i].deli = 0;
+            maps[i].beyond = 0;
+            console.log(maps[i])
+        }
+
+    });
+    io.emit("mapUpdate", maps);
+    io.emit("fixMaps")
+    return res.send(req.params.messageId);
+});

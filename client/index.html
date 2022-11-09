@@ -1238,6 +1238,81 @@
             document.getElementById("harbList").innerHTML = Array.from(harbList);
         })
 
+        socket.on("fixMaps", () => {
+
+            harbList.clear()
+            strongList.clear()
+            invasionList.clear()
+            breachList.clear()
+            spiritList.clear()
+            deliList.clear()
+            rogueList.clear()
+            beyondList.clear()
+
+            Object.keys(maps).forEach(key => {
+                for (let element in maps[key]) {
+                    switch (element) {
+                        case "rogue":
+                            if (element.rogue >= 1)
+                                rogueList.set(element.label, element.rogue)
+                            break
+                        case "strong":
+                            if (element.strong >= 1)
+                                strongList.set(element.label, element.strong)
+                            break
+                        case "breach":
+                            if (element.breach >= 1)
+                                breachList.set(element.label, element.breach)
+                            break
+                        case "spirit":
+                            if (element.spirit >= 1)
+                                spiritList.set(element.label, element.spirit)
+                            break
+                        case "harb":
+                            if (element.harb >= 1)
+                                harbList.set(element.label, element.harb)
+                            break
+                        case "deli":
+                            if (element.deli >= 1)
+                                deliList.set(element.label, element.deli)
+                            break
+                        case "beyond":
+                            if (element.beyond >= 1)
+                                beyondList.set(element.label, element.beyond)
+                            break
+                        case "invasion":
+                            if (element.invasion >= 1)
+                                invasionList.set(element.label, element.invasion)
+                            break
+                    }
+                }
+
+            });
+
+            function htmlListMaker(mapList) {
+                var html = "";
+                new Map([...mapList.entries()].sort((a, b) => b[1] - a[1])).forEach((values, keys) => {
+                    // console.log(values, keys)
+                    html += "<li>" + keys + ": " + values + "</li>";
+                })
+                return html
+            }
+
+            document.getElementById("rogueListList").innerHTML = htmlListMaker(rogueList)
+            document.getElementById("strongListList").innerHTML = htmlListMaker(strongList);
+            document.getElementById("breachListList").innerHTML = htmlListMaker(breachList);
+            document.getElementById("spiritListList").innerHTML = htmlListMaker(spiritList);
+            document.getElementById("deliListList").innerHTML = htmlListMaker(deliList);
+            document.getElementById("beyondListList").innerHTML = htmlListMaker(beyondList);
+            document.getElementById("invasionListList").innerHTML = htmlListMaker(invasionList);
+            document.getElementById("harbListList").innerHTML = htmlListMaker(harbList);
+        });
+
+
+
+
+
+
         socket.on("mapUpdate", (updatedMaps) => {
             console.log("updating")
                 // Convert the candidates object into an array
@@ -1314,8 +1389,6 @@
 
             });
 
-            // Connect to the server it's (Here you want to change the port if you changed it in the server)
-
         });
 
 
@@ -1389,6 +1462,8 @@
                 }
             }
         }
+
+
 
 
 
