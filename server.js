@@ -5,11 +5,6 @@ var cron = require('node-cron');
 var router = express.Router();
 const app = express();
 
-router.get('/register', function(req, res, next) {
-    res.render('./client/index.html');
-});
-
-
 // If you change this remember to change it on the client side as well
 const PORT = process.env.PORT || 3000;
 
