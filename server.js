@@ -440,5 +440,6 @@ app.get('/mapName/reset/:mapName', (req, res) => {
     });
     io.emit("mapUpdate", maps);
     io.emit("fixMaps")
+    io.emit("mapUpdate", maps);
     return res.send(req.params.messageId);
 });
