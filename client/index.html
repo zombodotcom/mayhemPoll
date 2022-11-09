@@ -31,51 +31,62 @@
             <div class="col" id="harbDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Harb</h1>
                 <h2 id="harbList" style="text-align: center;"></h2>
+                <ol id="harbListList"></ol>
             </div>
 
             <div class="col" id="rogueDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Rogue</h1>
                 <h2 id="rogueList" style="text-align: center;"></h2>
+                <ol id="rogueListList">
+                </ol>​
             </div>
 
             <div class="col" id="strongDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Strongbox</h1>
                 <h2 id="strongList" style="text-align: center;"></h2>
+                <ol id="strongListList"></ol>
             </div>
 
 
             <div class="col" id="invasionDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Invasion</h1>
                 <h2 id="invasionList" style="text-align: center;"></h2>
+                <ol id="invasionListList"></ol>
             </div>
 
 
             <div class="col" id="breachDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Breach</h1>
                 <h2 id="breachList" style="text-align: center;"></h2>
+                <ol id="breachListList"></ol>
             </div>
 
             <div class="col" id="spiritDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Spirit</h1>
                 <h2 id="spiritList" style="text-align: center;"></h2>
+                <ol id="spiritListList"></ol>
             </div>
 
             <div class="col" id="deliDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Delirium</h1>
                 <h2 id="deliList" style="text-align: center;"></h2>
+                <ol id="deliListList"></ol>
             </div>
 
             <div class="col" id="beyondDiv" style="display: block; border: 1px solid black;">
                 <h1 style="text-align: center;">Beyond</h1>
                 <h2 id="beyondList" style="text-align: center;"></h2>
+                <ol id="beyondListList"></ol>
             </div>
         </div>
     </div>
     <h2>Map Search</h2>
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
-    <table id="myTable" class="table table-bordered">
-        <!-- here goes our data! -->
-    </table>
+    <div class="table-responsive-sm">
+        <table id="myTable" class="table">
+            <!-- here goes our data! -->
+        </table>
+    </div>
 
 
 
@@ -85,14 +96,14 @@
 
     <script>
         let users_count = 0
-        const harbList = new Set()
-        const strongList = new Set()
-        const invasionList = new Set()
-        const breachList = new Set()
-        const spiritList = new Set()
-        const deliList = new Set()
-        const rogueList = new Set()
-        const beyondList = new Set()
+        const harbList = new Map()
+        const strongList = new Map()
+        const invasionList = new Map()
+        const breachList = new Map()
+        const spiritList = new Map()
+        const deliList = new Map()
+        const rogueList = new Map()
+        const beyondList = new Map()
 
 
         const PORT = 3000;
@@ -1259,47 +1270,57 @@
                         switch (key) {
                             case "rogue":
                                 if (element.rogue >= 1)
-                                    rogueList.add(element.label)
+                                    rogueList.set(element.label, element.rogue)
                                 break
                             case "strong":
                                 if (element.strong >= 1)
-                                    strongList.add(element.label)
+                                    strongList.set(element.label, element.strong)
                                 break
                             case "breach":
                                 if (element.breach >= 1)
-                                    breachList.add(element.label)
+                                    breachList.set(element.label, element.breach)
                                 break
                             case "spirit":
                                 if (element.spirit >= 1)
-                                    spiritList.add(element.label)
+                                    spiritList.set(element.label, element.spirit)
                                 break
                             case "harb":
                                 if (element.harb >= 1)
-                                    harbList.add(element.label)
+                                    harbList.set(element.label, element.harb)
                                 break
                             case "deli":
                                 if (element.deli >= 1)
-                                    deliList.add(element.label)
+                                    deliList.set(element.label, element.deli)
                                 break
                             case "beyond":
                                 if (element.beyond >= 1)
-                                    beyondList.add(element.label)
+                                    beyondList.set(element.label, element.beyond)
                                 break
                             case "invasion":
                                 if (element.invasion >= 1)
-                                    invasionList.add(element.label)
+                                    invasionList.set(element.label, element.invasion)
                                 break
                         }
                     }
                 }
-                document.getElementById("rogueList").innerHTML = Array.from(rogueList);
-                document.getElementById("strongList").innerHTML = Array.from(strongList);
-                document.getElementById("breachList").innerHTML = Array.from(breachList);
-                document.getElementById("spiritList").innerHTML = Array.from(spiritList);
-                document.getElementById("deliList").innerHTML = Array.from(deliList);
-                document.getElementById("beyondList").innerHTML = Array.from(beyondList);
-                document.getElementById("invasionList").innerHTML = Array.from(invasionList);
-                document.getElementById("harbList").innerHTML = Array.from(harbList);
+
+                function htmlListMaker(mapList) {
+                    var html = "";
+                    new Map([...mapList.entries()].sort((a, b) => b[1] - a[1])).forEach((values, keys) => {
+                        console.log(values, keys)
+                        html += "<li>" + keys + ": " + values + "</li>";
+                    })
+                    return html
+                }
+
+                document.getElementById("rogueListList").innerHTML = htmlListMaker(rogueList)
+                document.getElementById("strongListList").innerHTML = htmlListMaker(strongList);
+                document.getElementById("breachListList").innerHTML = htmlListMaker(breachList);
+                document.getElementById("spiritListList").innerHTML = htmlListMaker(spiritList);
+                document.getElementById("deliListList").innerHTML = htmlListMaker(deliList);
+                document.getElementById("beyondListList").innerHTML = htmlListMaker(beyondList);
+                document.getElementById("invasionListList").innerHTML = htmlListMaker(invasionList);
+                document.getElementById("harbListList").innerHTML = htmlListMaker(harbList);
 
             });
 
@@ -1378,6 +1399,9 @@
                 }
             }
         }
+
+
+
         let table2 = document.querySelector("table");
         let data2 = Object.keys(maps[0]);
         generateTableHead(table2, data2);
