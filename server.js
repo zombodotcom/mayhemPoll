@@ -11,7 +11,7 @@ router.get('/register', function(req, res, next) {
 
 
 // If you change this remember to change it on the client side as well
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Host the front end
 app.use(express.static("client"));
