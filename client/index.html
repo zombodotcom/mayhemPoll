@@ -15,14 +15,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.js" integrity="sha512-iWPnCISAd/J+ZacwV2mbNLCaPGRrRo5OS81lKTVPtRg1wGTC20Cfmp5Us5RcbLv42QLdbAWl0MI57yox5VecQg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <h1 style="text-align: center;">Mayhem Maps</h1>
-    <h1 style="text-align: center;">scroll to bottom for maplist. yes its ugly</h1>
-    <h1 style="text-align: center;">click the map mod button, search works.</h1>
-    <h1 style="text-align: center;">2 second vote cooldown</h1>
-    <h2 style="text-align: center;">highlight over or click the bar and it will show the map name</h1>
-
-        <div class="masterChartDiv">
-            <section>
-                <!-- <button id="strongToggleButton" onclick="hideStrongChart()">Show Strong</button>
+    <h3 class="text-muted" style="text-align: center;">2 second vote cooldown. Resets every server hour</h3>
+    <h3 <div class="container text-center">
+        <div class="row">
+            <!-- <button id="strongToggleButton" onclick="hideStrongChart()">Show Strong</button>
                 <button id="harbToggleButton" onclick="hideHarbChart()">Show Harb</button>
                 <button id="rogueToggleButton" onclick="hideRogueChart()">Show Rogue</button>
                 <button id="invasionToggleButton" onclick="hideInvasionChart()">Show Invasion</button>
@@ -32,52 +28,52 @@
                 <button id="beyondToggleButton" onclick="hideBeyondChart()">Show Beyond</button> -->
 
 
-                <div id="harbDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Harb</h1>
-                    <h2 id="harbList" style="text-align: center;"></h2>
-                </div>
+            <div class="col" id="harbDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Harb</h1>
+                <h2 id="harbList" style="text-align: center;"></h2>
+            </div>
 
-                <div id="rogueDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Rogue</h1>
-                    <h2 id="rogueList" style="text-align: center;"></h2>
-                </div>
+            <div class="col" id="rogueDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Rogue</h1>
+                <h2 id="rogueList" style="text-align: center;"></h2>
+            </div>
 
-                <div id="strongDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Strongbox</h1>
-                    <h2 id="strongList" style="text-align: center;"></h2>
-                </div>
-
-
-                <div id="invasionDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Invasion</h1>
-                    <h2 id="invasionList" style="text-align: center;"></h2>
-                </div>
+            <div class="col" id="strongDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Strongbox</h1>
+                <h2 id="strongList" style="text-align: center;"></h2>
+            </div>
 
 
-                <div id="breachDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Breach</h1>
-                    <h2 id="breachList" style="text-align: center;"></h2>
-                </div>
+            <div class="col" id="invasionDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Invasion</h1>
+                <h2 id="invasionList" style="text-align: center;"></h2>
+            </div>
 
-                <div id="spiritDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Spirit</h1>
-                    <h2 id="spiritList" style="text-align: center;"></h2>
-                </div>
 
-                <div id="deliDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Delirium</h1>
-                    <h2 id="deliList" style="text-align: center;"></h2>
-                </div>
+            <div class="col" id="breachDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Breach</h1>
+                <h2 id="breachList" style="text-align: center;"></h2>
+            </div>
 
-                <div id="beyondDiv" style="display: block; border: 1px solid black;">
-                    <h1 style="text-align: center;">Beyond</h1>
-                    <h2 id="beyondList" style="text-align: center;"></h2>
-                </div>
-            </section>
+            <div class="col" id="spiritDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Spirit</h1>
+                <h2 id="spiritList" style="text-align: center;"></h2>
+            </div>
+
+            <div class="col" id="deliDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Delirium</h1>
+                <h2 id="deliList" style="text-align: center;"></h2>
+            </div>
+
+            <div class="col" id="beyondDiv" style="display: block; border: 1px solid black;">
+                <h1 style="text-align: center;">Beyond</h1>
+                <h2 id="beyondList" style="text-align: center;"></h2>
+            </div>
+        </div>
         </div>
         <h2>Map Search</h2>
         <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
-        <table id="myTable" style=" border: 1px solid black;">
+        <table id="myTable" class="table" style=" border: 1px solid black;">
             <!-- here goes our data! -->
         </table>
 
@@ -1345,6 +1341,7 @@
                 let row = thead.insertRow();
                 for (let key of data) {
                     let th = document.createElement("th");
+                    th.setAttribute('scope', 'col')
                     let text = document.createTextNode(key);
                     th.appendChild(text);
                     row.appendChild(th);
@@ -1354,12 +1351,12 @@
             function generateTable(table, data) {
                 for (let [index, element] of data.entries()) {
                     let row = table.insertRow();
-
+                    row.setAttribute('scope', 'row')
                     for (key in element) {
                         if (mapMods.includes(key)) {
                             let cell = row.insertCell();
                             let btn = document.createElement("button");
-                            btn.classList.add(['btn', 'btn-primary'])
+                            btn.setAttribute('class', 'btn btn-primary')
                             btn.innerHTML = key
                                 //neat
                                 // Object.keys(element).indexOf(key);
