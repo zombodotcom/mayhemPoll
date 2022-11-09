@@ -11,7 +11,7 @@ router.get('/register', function(req, res, next) {
 
 
 // If you change this remember to change it on the client side as well
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Host the front end
 app.use(express.static("client"));
@@ -26,7 +26,7 @@ const io = require("socket.io")(server, {
     cors: {
         origin: '*', // I copied the origin in the error message and pasted here
         methods: ["GET", "POST"],
-        credentials: true
+        credentials: false
     }
 });
 

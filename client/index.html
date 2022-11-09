@@ -35,14 +35,14 @@
             // Connect to the server it's (Here you want to change the port if you changed it in the server)
 
             const PORT = 3000;
-            const socket = io("http://localhost:5000", {
-                transports: ['websocket'],
+            const socket = io("http://localhost:3000", {
                 cors: {
                     origin: '*', // I copied the origin in the error message and pasted here
                     methods: ["GET", "POST"],
-                    credentials: true
+                    credentials: false
                 }
             })
+            socket.set('transports', ['websocket']);
             const maps = [{
                 votes: 0,
                 label: "Strand",
