@@ -36,13 +36,13 @@
 
             const PORT = 3000;
             const socket = io("http://localhost:3000", {
+                transports: ['websocket'],
                 cors: {
                     origin: '*', // I copied the origin in the error message and pasted here
                     methods: ["GET", "POST"],
                     credentials: false
                 }
             })
-            socket.set('transports', ['websocket']);
             const maps = [{
                 votes: 0,
                 label: "Strand",
