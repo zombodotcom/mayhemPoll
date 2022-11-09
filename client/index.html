@@ -100,7 +100,7 @@
 
 
             const PORT = 3000;
-            const socket = io("http://localhost:3000", {
+            const socket = io({
                 transports: ['websocket'],
                 cors: {
                     origin: '*', // I copied the origin in the error message and pasted here

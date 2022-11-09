@@ -5,8 +5,9 @@ var cron = require('node-cron');
 var router = express.Router();
 const app = express();
 
+
 // If you change this remember to change it on the client side as well
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Host the front end
 app.use(express.static("client"));
