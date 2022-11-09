@@ -1221,6 +1221,25 @@
                 return `rgb(${r()}, ${r()}, ${r()})`;
             }
 
+            socket.on("clearLists", () => {
+                harbList.clear()
+                strongList.clear()
+                invasionList.clear()
+                breachList.clear()
+                spiritList.clear()
+                deliList.clear()
+                rogueList.clear()
+                beyondList.clear()
+                document.getElementById("rogueList").innerHTML = Array.from(rogueList);
+                document.getElementById("strongList").innerHTML = Array.from(strongList);
+                document.getElementById("breachList").innerHTML = Array.from(breachList);
+                document.getElementById("spiritList").innerHTML = Array.from(spiritList);
+                document.getElementById("deliList").innerHTML = Array.from(deliList);
+                document.getElementById("beyondList").innerHTML = Array.from(beyondList);
+                document.getElementById("invasionList").innerHTML = Array.from(invasionList);
+                document.getElementById("harbList").innerHTML = Array.from(harbList);
+            })
+
             socket.on("mapUpdate", (updatedMaps) => {
                 console.log("updating")
                 users_count++

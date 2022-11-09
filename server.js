@@ -370,6 +370,7 @@ function copy(x) {
 cron.schedule('0 * * * *', () => {
     console.log('running a task every 1 hour');
     io.emit("mapUpdate", originalMaps);
+    io.emit("clearLists");
     maps = copy(originalMaps)
 });
 
